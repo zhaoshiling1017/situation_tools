@@ -1,5 +1,6 @@
 package b.storm.situtaion.monitor;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -19,8 +20,8 @@ public class MessageScheme implements Scheme {
 	public List<Object> deserialize(byte[] ser) {
 		try {
 			// 从kafka中读取的值直接序列化为UTF-8的str
-			String mString = new String(ser,"utf-8");
-			return new Values(mString);
+//			String mString = new String(ser,"utf-8");
+			return new Values(ser);
 		} catch (Exception e) {
 			e.printStackTrace();
 			LOGGER.error("Cannot parse the provided message");

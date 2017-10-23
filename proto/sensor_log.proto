@@ -1,0 +1,454 @@
+// See README.txt for information and build instructions.
+
+syntax = "proto2";
+
+package Sensor;
+
+option java_package = "com.sensor.model";
+option java_outer_classname = "Sensor";
+
+message TCPFLOW{
+  required string serial_num=1;
+  required string status=2;
+  required string stime=3;
+  required string dtime=4;
+  optional string sip=5;
+  optional string sipv6=6;
+  required int32  sport=7;
+  optional string dip=8;
+  optional string dipv6=9;
+  required int32  dport=10;
+  required string proto=11;
+  required uint64 uplink_length=12;
+  required uint64 downlink_length=13;
+  required string client_os=14;
+  required string server_os=15;
+  required string src_mac=16;
+  required string dst_mac=17;
+  required string up_payload=18;
+  required string down_payload=19;
+  required string summary=20;
+}
+
+message DNS{
+  required string serial_num=1;
+  required string access_time=2;
+  optional string sip=3;
+  optional string sipv6=4;
+  required int32  sport=5;
+  optional string dip=6;
+  optional string dipv6=7;
+  required int32  dport=8;
+  required int32  dns_type=9;
+  optional int32  reply_code=10;
+  optional string count=11;
+  required string host=12;
+  repeated string addr=13;
+  repeated string cname=14;
+  repeated string mx=15;
+  optional string txt=16;    // 增加txt字段 
+}
+
+message WEBLOG{
+  required string serial_num=1;
+  required string access_time=2;
+  optional string sip=3;
+  optional string sipv6=4;
+  required int32  sport=5;
+  optional string dip=6;
+  optional string dipv6=7;
+  required int32  dport=8;
+  required bytes uri=9;  // Should be "required", Later will calculate md5
+  required string host=10;// Should be "required", Later will calculate md5
+  optional string origin=11;
+  optional string cookie=12;
+  optional string agent=13;
+  optional string referer=14;
+  optional string xff=15;
+  required bytes data=16;
+  required string method=17;
+  optional int32 status=18;
+  optional string setcookie=19;
+  optional string content_type=20;
+}
+
+message FILE_BEHAVIOR{
+  required string serial_num=1;
+  required string proto=2;
+  required string access_time=3;
+  optional string sip=4;
+  optional string sipv6=5;
+  required int32  sport=6;
+  optional string dip=7;
+  optional string dipv6=8;
+  required int32  dport=9;
+  optional bytes uri=10;	// HTTP.Should be "required", Later will calculate md5
+  optional string host=11;	// HTTP.Should be "required", Later will calculate md5
+  optional string status=12;    // HTTP
+  optional int32  file_dir=13;	// HTTP
+  optional string referer=14;	// HTTP
+  optional string trans_mode=15;// FTP
+  required string filename=16;
+  required string mime_type=17;
+  required string file_md5=18;
+  optional string method=19;
+}
+
+message FILE_SANDBOX{
+  required string serial_num=1;
+  required string proto=2;
+  required string access_time=3;
+  optional string sip=4;
+  optional string sipv6=5;
+  required int32  sport=6;
+  optional string dip=7;
+  optional string dipv6=8;
+  required int32  dport=9;
+  optional string host=10;   	// HTTP
+  optional bytes uri=11;    	// HTTP
+  optional string status=12;	// HTTP
+  optional string trans_mode=13;// FTP
+  required string filename=14;
+  required string file_md5=15;
+  required string mime_type=16;
+  optional int32  file_dir=17;	// HTTP
+  optional string referer=18;	// HTTP
+  optional string method=19;
+}
+
+message MAIL_BEHAVIOR{
+  required string serial_num=1;
+  required string proto=2;
+  required string access_time=3;
+  optional string sip=4;
+  optional string sipv6=5;
+  optional string dip=6;
+  optional string dipv6=7;
+  required int32  sport=8;
+  required int32  dport=9;
+  optional string mid=10; // WEBMAIL
+  required string time=11;
+  required string mail_from=12;
+  required string to=13;
+  required string cc=14;
+  required string subject=15;
+  required string plain=16;
+
+  message mail_attachment{
+    required string attach_md5=1;
+    required string mime_type=2;
+    required string name=3;
+  }
+  repeated mail_attachment attachment=17;
+  optional string references=18;
+  optional string bcc=19;
+  optional string returnpath=20;
+  repeated string received=21;
+}
+
+message MAIL_SANDBOX{
+  required string serial_num=1;
+  required string proto=2;
+  required string access_time=3;
+  optional string sip=4;
+  optional string sipv6=5;
+  required int32  sport=6;
+  optional string dip=7;
+  optional string dipv6=8;
+  required int32  dport=9;
+  required string time=10;
+  required string mail_from=11;
+  required string to=12;
+  required string cc=13;
+  required string subject=14;
+  required string attach_md5=15;
+  required string attach_name=16;
+  required string mime_type=17;
+  optional string bcc=18;
+  optional string returnpath=19;
+  repeated string received=20;
+}
+
+message LOGIN{
+  required string serial_num=1;
+  required string access_time=2;
+  optional string sip=3;
+  optional string sipv6=4;
+  required int32  sport=5;
+  optional string dip=6;
+  optional string dipv6=7;
+  required int32  dport=8;
+  required string proto=9;
+  required string passwd=10;
+  required string info=11;
+  required string user=12;
+  optional string db_type=13;
+  optional string normal_ret=14;
+}
+
+message DB{
+  required string serial_num=1;
+  required string access_time=2;
+  optional string sip=3;
+  optional string sipv6=4;
+  required int32  sport=5;
+  optional string dip=6;
+  optional string dipv6=7;
+  required int32  dport=8;
+  required string proto=9;
+  required string version=10;
+  required string db_type=11;
+  required string user=12;
+  required string db_name=13;
+  required string ret_code=14;
+  required string sql_info=15;
+  optional string normal_ret=16;
+}
+
+message ATTACK{
+  required string serial_num=1;
+  required string access_time=2;
+  optional string sip=3;
+  optional string sipv6=4;
+  required int32  sport=5;
+  optional string dip=6;
+  optional string dipv6=7;
+  required int32  dport=8;
+  required string host=9;
+  required string content=10;
+  required string pattern=11;
+  required string attack_type=12;
+  optional bytes uri = 13;
+}
+
+message LDAP{
+  required string serial_num=1;
+  required string proto=2;
+  required string access_time=3;
+  optional string sip=4;
+  optional string sipv6=5;
+  required int32  sport=6;
+  optional string dip=7;
+  optional string dipv6=8;
+  required int32  dport=9;
+  required string user=10;
+  required string version=11;
+  required string op=12;
+  required string info=13;
+}
+
+message SSL{
+  required string serial_num=1;
+  required string access_time=2;
+  optional string sip=3;
+  optional string sipv6=4;
+  required int32  sport=5;
+  optional string dip=6;
+  optional string dipv6=7;
+  required int32  dport=8;
+  required string version=9;
+  required string session_id=10;
+  required string server_name=11;
+
+  message SSL_CERT{
+    required string issuer_name=1;
+    required string notafter=2;
+    required string notbefore=3;
+    required string public_key=4;
+  }
+  repeated SSL_CERT cert=12;
+  required string user_name=13;
+}
+
+message FTP_OP{
+  required string serial_num=1;
+  required string proto=2;
+  required string access_time=3;
+  optional string sip=4;
+  optional string sipv6=5;
+  required int32  sport=6;
+  optional string dip=7;
+  optional string dipv6=8;
+  required int32  dport=9;
+  required string user=10;
+  required int32  seq=11;
+  required string op=12;
+  repeated string ret=13;
+}
+
+message SNORT{
+  required string serial_num=1;
+  required string access_time=2;
+  optional string sip=3;
+  optional string sipv6=4;
+  required int32  sport=5;
+  optional string dip=6;
+  optional string dipv6=7;
+  required int32  dport=8;
+  required string event_id=9;
+  required string priority=10;
+  required string proto=11;
+  required string warn_info=12;
+  required string classification=13;
+}
+
+message UDPFLOW{
+  required string serial_num=1;
+  required string stime=2;
+  required string dtime=3;
+  optional string sip=4;
+  optional string sipv6=5;
+  required int32  sport=6;
+  optional string dip=7;
+  optional string dipv6=8;
+  required int32  dport=9;
+  required uint64 uplink_length=10;
+  required uint64 downlink_length=11;
+  required int32  uplink_pkts=12;
+  required int32  downlink_pkts=13;
+  required string up_payload=14;
+  required string down_payload=15;
+  required string src_mac=16;
+  required string dst_mac=17;
+  required string proto=18;
+}
+
+message WEBSHELL_DOLOG
+{
+  required string serial_num=1;
+  required int32 rule_id=2;
+  optional string sip=3;
+  required int32 sport=4;
+  optional string dip=5;
+  required int32 dport=6;
+  required string host=7;
+  optional bytes url=8;
+  required string file_md5=9;
+  optional bytes file=10;
+  optional bytes attack_type=11;
+  required string file_dir=12;
+  required string victim_type=13;
+  required string attack_flag=14;
+  optional string attacker=15;
+  optional string victim=16;
+  optional int32 write_date=17;
+  required string severity=18;
+}
+
+message WEBATTACK_DOLOG
+{
+  required string serial_num=1;
+  required int32 rule_id=2;
+  required string rule_name=3;
+  required int32 dolog_count=4;
+  required string severity=5;
+  required int32 rule_version=6;
+  optional string sip=7;
+  optional string dip=8;
+  optional int32 sport=9;
+  optional int32 dport=10;
+  optional string method=11;
+  optional string host=12;
+  optional bytes uri=13;
+  optional string file_name=14;
+  optional string referer=15;
+  optional string agent=16;
+  optional string cookie=17;
+  optional string parameter=18;
+  optional bytes req_header=19;
+  optional string req_body=20;
+  optional int32 rsp_status=21;
+  optional int32 rsp_content_length=22;
+  optional string rsp_content_type=23;
+  optional bytes rsp_header=24;
+  optional bytes rsp_body=25;
+  optional int32 rsp_body_len=26;
+  required string victim_type=27;
+  required string attack_flag=28;
+  optional string attacker=29;
+  optional string victim=30;
+  optional int32 write_date=31;
+  optional bytes attack_type=32;
+}
+
+message IDS_DOLOG
+{
+  required string serial_num=1;
+  required int32 rule_id=2;
+  required string rule_name=3;
+  optional int32 packet_size=4;
+  optional bytes packet_data=5;
+  optional string sip=6;
+  optional string dip=7;
+  optional int32 sport=8;
+  optional int32 dport=9;
+  optional int32 appid=10;
+  optional int32 protocol_id=11;
+  optional bytes description=12;
+  optional int32 write_date=13;
+  optional int32 severity=14;
+  optional string vuln_type=15;
+  optional string attack_method=16;
+  optional string detail_info=17;
+  optional string bulletin=18;
+  optional string affected_system=19;
+  optional string info_id=20;
+  required string victim_type=21;
+  required string attack_flag=22;
+  optional string attacker=23;
+  optional string victim=24;
+  required int32 sig_id=25;
+}
+
+message ABNORMAL_PKT {
+  required string serial_num=1;
+  required string access_time=2;
+  required string type=3;
+  optional string sip=4;
+  optional string sipv6=5;
+  optional int32  sport=6;
+  optional string dip=7;
+  optional string dipv6=8;
+  optional int32  dport=9;
+  optional string data=10;
+  optional int32 datalen=11;
+  optional string info=12;
+}
+
+message REDIRECT {
+  required string serial_num=1;
+  required string proto=2;
+  optional string sip=3;
+  optional string sipv6=4;
+  required int32  sport=5;
+  optional string dip=6;
+  optional string dipv6=7;
+  required int32  dport=8;
+  optional string info=9;
+}
+
+message SENSOR_LOG {
+  required int32 message_type=1;
+  optional TCPFLOW skyeye_tcpflow=2;
+  optional DNS  	skyeye_dns=3;
+  optional WEBLOG  	skyeye_weblog=4;
+  optional FILE_BEHAVIOR skyeye_file=5;
+  optional MAIL_BEHAVIOR skyeye_mail=6;
+  optional LOGIN	skyeye_login=7;
+  optional DB		skyeye_sql=8;
+  optional ATTACK	skyeye_attack=9;
+  optional LDAP 	skyeye_ldap=10;
+  optional SSL		skyeye_ssl=11;
+  optional FTP_OP	skyeye_ftpop=12;
+  optional FILE_SANDBOX skyeye_file_sandbox=13;
+  optional MAIL_SANDBOX skyeye_mail_sandbox=14;
+  optional SNORT        skyeye_snort=15;
+  optional UDPFLOW     skyeye_udpflow=16;
+  optional WEBSHELL_DOLOG  skyeye_webshell=17;
+  optional WEBATTACK_DOLOG skyeye_webattack=18;
+  optional IDS_DOLOG       skyeye_ids=19;
+  optional ABNORMAL_PKT skyeye_abnormal=20;
+  optional REDIRECT skyeye_redirect=21;
+}
+
+

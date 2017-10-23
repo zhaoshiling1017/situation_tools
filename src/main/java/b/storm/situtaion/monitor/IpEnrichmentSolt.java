@@ -1,5 +1,32 @@
 package b.storm.situtaion.monitor;
 
+import b.storm.situtaion.utils.Geoip;
+import b.storm.situtaion.utils.Geoip.Result;
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.topology.OutputFieldsDeclarer;
+import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
+import com.sensor.model.Sensor;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.googlecode.protobuf.format.JsonFormat;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericDatumWriter;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.io.BinaryEncoder;
+import org.apache.avro.io.DatumWriter;
+import org.apache.avro.io.EncoderFactory;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -10,33 +37,6 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericDatumWriter;
-import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.io.BinaryEncoder;
-import org.apache.avro.io.DatumWriter;
-import org.apache.avro.io.EncoderFactory;
-import org.apache.commons.lang.StringUtils;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.log4j.Logger;
-import org.json.simple.JSONObject;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import b.storm.situtaion.utils.Geoip;
-import b.storm.situtaion.utils.Geoip.Result;
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
-import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
 
 /**
  * 富化ip信息
@@ -81,19 +81,24 @@ public class IpEnrichmentSolt extends BaseRichBolt {
 	}
 	public void execute(Tuple tuple) {
 		JsonElement jsonElement = null;
-		String tcpFlowInfo = (String) tuple.getValue(0);
+		// String tcpFlowInfo = (String) tuple.getValue(0);
+		byte[] tcpFlowBytes = (byte[]) tuple.getValue(0);
 		try {
 			// 查找ip相关的信息
-			if (StringUtils.isNotBlank(tcpFlowInfo)) {
+			// if (StringUtils.isNotBlank(tcpFlowInfo)) {
+			if (null != tcpFlowBytes && tcpFlowBytes.length > 0) {
 				log.error("ip data count " + Geoip.getInstance().data.size());
-				log.error("tcpFlowInfo------------:" + tcpFlowInfo);
-				Gson gson = new Gson();
+				// log.error("tcpFlowInfo------------:" + tcpFlowInfo);
+				log.error("-------" + new String(tcpFlowBytes, "utf-8"));
+				Sensor.SENSOR_LOG logBuilder = Sensor.SENSOR_LOG.parseFrom(tcpFlowBytes);
+				String tcpFlow = JsonFormat.printToString(logBuilder.getSkyeyeTcpflow());
+				log.error("tcpFlow------------------:" + tcpFlow);
 				JsonParser parser = new JsonParser();
-				jsonElement = parser.parse(tcpFlowInfo);
+				jsonElement = parser.parse(tcpFlow);
 				String sipStr ="";
 				String dipStr = "";
 				if(jsonElement.getAsJsonObject().get("sip")!=null) {
-					sipStr = jsonElement.getAsJsonObject().get("sip").getAsString();	
+					sipStr = jsonElement.getAsJsonObject().get("sip").getAsString();
 				}
 				if(jsonElement.getAsJsonObject().get("dip")!=null) {
 					dipStr = jsonElement.getAsJsonObject().get("dip").getAsString();
@@ -112,7 +117,7 @@ public class IpEnrichmentSolt extends BaseRichBolt {
 				log.error("dResult------------:" + dResult);
 				log.error("geo123456789------------:" + jsonElement);
 				//发送到kafka
-				sendKafkaMessage(tuple, jsonElement, sReulst, dResult);
+				// sendKafkaMessage(tuple, jsonElement, sReulst, dResult);
 			} else {
 				this.outputCollector.emit(new Values(""));
 			}
@@ -120,7 +125,7 @@ public class IpEnrichmentSolt extends BaseRichBolt {
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e);
-			this.outputCollector.emit(new Values(tcpFlowInfo));
+			this.outputCollector.emit(new Values(tcpFlowBytes));
 		}
 	}
 
@@ -217,6 +222,7 @@ public class IpEnrichmentSolt extends BaseRichBolt {
 		}
 		return ipMap;
 	}
+
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
 	}
 	/**

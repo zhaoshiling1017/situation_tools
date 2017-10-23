@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import kafka.api.OffsetRequest;
 import org.apache.log4j.Logger;
 
 import backtype.storm.Config;
@@ -52,6 +53,9 @@ public class IpEnrichmentTopology {
 
 		// 设置如何处理kafka消息队列输入流
 		spoutConfig.scheme = new SchemeAsMultiScheme(new MessageScheme());
+
+		//设置最新的offset
+		spoutConfig.startOffsetTime= OffsetRequest.LatestTime();
 
 		// 建立拓扑DAG
 		IpEnrichmentSolt ipEnrichmentSolt = new IpEnrichmentSolt();
